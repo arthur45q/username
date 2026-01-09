@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sempa Store - Blox Fruits</title>
+
+<style>
+:root{
+  --laranja:#ff4500;
+  --roxo:#7c3aed;
+  --azul:#2563eb;
+  --bg:#0b0b0f;
+  --card:#161622;
+}
+
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:var(--bg);
+  color:#fff;
+}
+
+/* TOPO */
+header{
+  background:linear-gradient(135deg,var(--laranja),var(--roxo),var(--azul));
+  padding:35px 20px;
+  text-align:center;
+}
+header h1{
+  margin:0;
+  font-size:34px;
+}
+header p{
+  margin-top:10px;
+  font-size:16px;
+  opacity:.9;
+}
+
+/* HERO */
+.hero{
+  display:flex;
+  flex-wrap:wrap;
+  gap:20px;
+  justify-content:center;
+  margin-top:-30px;
+}
+.hero .box{
+  background:var(--card);
+  padding:20px;
+  border-radius:15px;
+  width:260px;
+  text-align:center;
+  box-shadow:0 0 20px #000;
+}
+.hero .box span{
+  font-size:40px;
+}
+.hero .box h3{
+  margin:10px 0;
+}
+
+/* GERAL */
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+}
+
+.card{
+  background:var(--card);
+  border-radius:15px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:0 0 15px #000;
+}
+
+button{
+  background:linear-gradient(135deg,var(--laranja),var(--roxo));
+  border:none;
+  padding:12px 20px;
+  color:#fff;
+  border-radius:10px;
+  font-size:16px;
+  cursor:pointer;
+}
+button:hover{opacity:.9}
+button:disabled{background:#444;cursor:not-allowed}
+
+input{
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border-radius:8px;
+  border:none;
+}
+
+.hidden{display:none}
+
+.status{
+  font-weight:bold;
+  margin:8px 0;
+}
+
+footer{
+  text-align:center;
+  padding:20px;
+  background:#09090c;
+  margin-top:40px;
+  font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🔥 Sempa Store 🔥</h1>
+  <p>Contas e UP de Blox Fruits • Entrega via Discord</p>
+</header>
+
+<div class="hero">
+  <div class="box">
+    <span>🎮</span>
+    <h3>Blox Fruits</h3>
+    <p>Contas prontas e UP seguro</p>
+  </div>
+  <div class="box">
+    <span>⚡</span>
+    <h3>Entrega Rápida</h3>
+    <p>Resgate direto no Discord</p>
+  </div>
+  <div class="box">
+    <span>🔒</span>
+    <h3>Pagamento Seguro</h3>
+    <p>Pix / Mercado Pago</p>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- MENU -->
+<div class="card" id="menuLogin">
+  <h2>🚀 Acessar</h2>
+  <button onclick="mostrar('loginADM')">👑 Login ADM</button>
+  <button onclick="mostrar('criarConta')">📝 Criar Conta</button>
+  <button onclick="mostrar('loginUser')">🔑 Login Usuário</button>
+</div>
+
+<!-- LOGIN ADM -->
+<div class="card hidden" id="loginADM">
+  <h2>👑 Área ADM</h2>
+  <input id="admUser" placeholder="Usuário">
+  <input id="admPass" type="password" placeholder="Senha">
+  <button onclick="loginADM()">Entrar</button>
+  <p id="admMsg"></p>
+</div>
+
+<!-- CRIAR CONTA -->
+<div class="card hidden" id="criarConta">
+  <h2>📝 Criar Conta</h2>
+  <input id="newUser" placeholder="Usuário">
+  <input id="newPass" type="password" placeholder="Senha">
+  <button onclick="criarConta()">Criar Conta</button>
+  <p id="criarMsg"></p>
+</div>
+
+<!-- LOGIN USER -->
+<div class="card hidden" id="loginUser">
+  <h2>🔑 Login</h2>
+  <input id="userLogin" placeholder="Usuário">
+  <input id="passLogin" type="password" placeholder="Senha">
+  <button onclick="loginUser()">Entrar</button>
+  <p id="userMsg"></p>
+</div>
+
+<!-- ADM -->
+<div class="card hidden" id="adminPanel">
+  <h2>🛠 Painel ADM</h2>
+  <input id="prodNome" placeholder="Nome do Produto">
+  <input id="prodDesc" placeholder="Descrição">
+  <input id="prodPreco" placeholder="Preço">
+  <input id="prodLink" placeholder="Link de Pagamento">
+  <button onclick="addProduto()">➕ Adicionar Produto</button>
+  <h3>Gerenciar Produtos</h3>
+  <div id="adminProdutos"></div>
+</div>
+
+<!-- LOJA -->
+<h2>🛒 Loja</h2>
+<div id="produtos"></div>
+
+</div>
+
+<footer>
+© 2026 • Sempa Store • Blox Fruits
+</footer>
+
+<script>
+const admHashUser="QWRtMDAy";
+const admHashPass="cGxheWVyZGVjYWxhbmd1aW5obw==";
+
+let usuarios=JSON.parse(localStorage.getItem("usuarios"))||[];
+let produtos=JSON.parse(localStorage.getItem("produtos"))||[];
+let userLogado=null;
+let isAdmin=false;
+
+function mostrar(id){
+  ["loginADM","criarConta","loginUser"].forEach(x=>document.getElementById(x).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+
+function loginADM(){
+  if(btoa(admUser.value)===admHashUser && btoa(admPass.value)===admHashPass){
+    isAdmin=true; userLogado="ADM";
+    adminPanel.classList.remove("hidden");
+    menuLogin.classList.add("hidden");
+    admMsg.innerText="Acesso liberado";
+    render();
+  }else admMsg.innerText="Dados inválidos";
+}
+
+function criarConta(){
+  if(!newUser.value||!newPass.value) return;
+  usuarios.push({user:newUser.value,pass:newPass.value});
+  localStorage.setItem("usuarios",JSON.stringify(usuarios));
+  criarMsg.innerText="Conta criada!";
+}
+
+function loginUser(){
+  const u=usuarios.find(x=>x.user===userLogin.value && x.pass===passLogin.value);
+  if(u){userLogado=u.user; render(); userMsg.innerText="Login OK";}
+  else userMsg.innerText="Login inválido";
+}
+
+function addProduto(){
+  produtos.push({
+    nome:prodNome.value,
+    desc:prodDesc.value,
+    preco:prodPreco.value,
+    link:prodLink.value,
+    disp:true
+  });
+  localStorage.setItem("produtos",JSON.stringify(produtos));
+  render();
+}
+
+function toggle(i){
+  produtos[i].disp=!produtos[i].disp;
+  localStorage.setItem("produtos",JSON.stringify(produtos));
+  render();
+}
+
+function render(){
+  produtosDiv.innerHTML="";
+  adminProdutos.innerHTML="";
+  produtos.forEach((p,i)=>{
+    produtosDiv.innerHTML+=`
+      <div class="card">
+        <h3>${p.nome}</h3>
+        <p>${p.desc}</p>
+        <p>💰 R$ ${p.preco}</p>
+        <p class="status">${p.disp?"🟢 DISPONÍVEL":"❌ ESGOTADO"}</p>
+        <button ${p.disp?"":"disabled"} onclick="window.open('${p.link}')">Comprar</button>
+      </div>`;
+    if(isAdmin){
+      adminProdutos.innerHTML+=`
+        <div class="card">
+          <strong>${p.nome}</strong><br>
+          <button onclick="toggle(${i})">Trocar Status</button>
+        </div>`;
+    }
+  });
+}
+render();
+</script>
+
+</body>
+</html>
